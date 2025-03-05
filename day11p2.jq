@@ -1,5 +1,12 @@
 #!/usr/bin/env -S jq -s -f
-# note: this does complete, it just takes a pretty long time (156.15 seconds on my machine, though, still faster than using the non-cached p1 solution)
+# note: this does complete, it just takes a pretty long time* ( though, still faster than using the non-cached p1 solution)
+# *156.15s before using heuristic caching, 60.23s after
+def cache(key; blinks; val):
+    # heuristic: don't cache values for small values of blinks to keep the cache smaller
+    # tuned on my machine for n=60
+    if blinks > 10 then
+        .[key] = val
+    end;
 
 def calculate($arr):
     def rec:
@@ -22,11 +29,11 @@ def calculate($arr):
             | .[0] as $lhs
             | [($s[$l:] | tonumber), $blinks_left - 1, .[-1]] | rec
             | (.[0] + $lhs) as $res
-            | [$res, (.[-1] | .[$key] = $res)]
+            | [$res, (.[-1] | cache($key; $blinks_left; $res))]
         else
             [$num * 2024, $blinks_left - 1, .[-1]] | rec
             | .[0] as $res
-            | [$res, (.[-1] | .[$key] = $res)]
+            | [$res, (.[-1] | cache($key; $blinks_left; $res))]
         end;
 
     reduce $arr[] as $stone ([0, {}];
