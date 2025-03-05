@@ -1,6 +1,6 @@
 #!/usr/bin/env -S jq -s -f
 # note: this does complete, it just takes a pretty long time* ( though, still faster than using the non-cached p1 solution)
-# *156.15s before using heuristic caching, 60.23s after
+# *156.15s before using heuristic caching, 60.23s after, -> 58.11s after reordering 0 case
 def cache(key; blinks; val):
     # heuristic: don't cache values for small values of blinks to keep the cache smaller
     # tuned on my machine for n=60
@@ -16,12 +16,10 @@ def calculate($arr):
         . as [$num, $blinks_left] | (.[:-1] | tostring) as $key
         | if $blinks_left == 0 then
             [1, .[-1]]
-        elif .[-1][$key] then
-            [.[-1][$key], .[-1]]
         elif $num == 0 then
             [1, $blinks_left - 1, .[-1]] | rec
-            | .[0] as $res
-            | [$res, (.[-1] | .[$key] = $res)]
+        elif .[-1][$key] then
+            [.[-1][$key], .[-1]]
         elif (($num | tostring | length) % 2 == 0) then
             ($num | tostring | .) as $s
             | (($s | length) / 2) as $l
