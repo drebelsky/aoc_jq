@@ -1,5 +1,4 @@
 #!/usr/bin/env -S jq -Rrs -f
-# jq doesn't have any bitwise operators, so we implement them using lists of bits
 
 70 as $MAX
 # | 6 as $MAX
